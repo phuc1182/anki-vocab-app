@@ -139,6 +139,7 @@ def generate_word_entry(word: str, log: Callable[[str], None] | None = None, reg
             if all(path.exists() and path.stat().st_size > 0 for path in [cached_entry.word_audio, cached_entry.sentence_audio, cached_entry.meaning_audio, cached_entry.image_file]):
                 if log:
                     log(f"[CACHE] {word}")
+                create_word_card_image(word, cached_entry.vietnamese, cached_entry.meaning, cached_entry.sentence, cached_entry.image_file)
                 return cached_entry
 
     if log:
