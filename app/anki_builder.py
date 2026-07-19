@@ -137,7 +137,7 @@ def build_apkg(entries: Iterable[GeneratedWord], output_path: Path, deck_name: s
 				f"[sound:{entry.sentence_audio.name}]",
 				f"[sound:{entry.meaning_audio.name}]",
 			],
-			tags=["auto", "vocabulary"],
+			tags=["auto", "toeic_auto"],
 			guid=genanki.guid_for(entry.word),
 		)
 
