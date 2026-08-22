@@ -16,7 +16,6 @@ INPUT_DIR = BASE_DIR / "input"
 OUTPUT_DIR = BASE_DIR / "output"
 MEDIA_DIR = BASE_DIR / "media"
 AUDIO_DIR = MEDIA_DIR / "audio"
-IMAGE_DIR = MEDIA_DIR / "images"
 CACHE_DIR = BASE_DIR / "cache"
 CACHE_DB = CACHE_DIR / "vocab_cache.sqlite"
 INPUT_FILE = INPUT_DIR / "words.csv"
@@ -24,7 +23,7 @@ OUTPUT_APKG = OUTPUT_DIR / "VocabularyAuto.apkg"
 
 
 def ensure_directories() -> None:
-	for directory in [INPUT_DIR, OUTPUT_DIR, AUDIO_DIR, IMAGE_DIR, CACHE_DIR]:
+	for directory in [INPUT_DIR, OUTPUT_DIR, AUDIO_DIR, CACHE_DIR]:
 		directory.mkdir(parents=True, exist_ok=True)
 
 

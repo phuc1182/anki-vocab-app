@@ -321,7 +321,7 @@ def build_apkg(entries: Iterable[GeneratedWord], output_path: Path, deck_name: s
 				entry.word,
 				entry.meaning,
 					entry.sentence,
-					f'<img src="{entry.image_file.name}">',
+					"",
 				entry.pronounce,
 				entry.vietnamese,
 				f"[sound:{entry.word_audio.name}]",
@@ -333,7 +333,7 @@ def build_apkg(entries: Iterable[GeneratedWord], output_path: Path, deck_name: s
 		)
 
 		deck.add_note(note)
-		media_files.extend([str(entry.word_audio), str(entry.sentence_audio), str(entry.meaning_audio), str(entry.image_file)])
+		media_files.extend([str(entry.word_audio), str(entry.sentence_audio), str(entry.meaning_audio)])
 
 	package = genanki.Package(deck)
 	package.media_files = media_files

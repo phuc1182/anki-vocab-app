@@ -1,6 +1,6 @@
 # anki-vocab-app
 
-App nhập từ mới, tự tạo audio, tự tạo hình ảnh, và xuất file Anki `.apkg` riêng cho mỗi lần chạy.
+App nhập từ mới, tự tạo audio, để người dùng tự thêm hình ảnh, và xuất file Anki `.apkg` riêng cho mỗi lần chạy.
 
 ## Chạy app
 
@@ -45,7 +45,6 @@ Lần đầu Anki sẽ tạo bộ thẻ này; các lần sau sẽ tiếp tục t
 
 - File deck: [output](output)
 - Audio: [media/audio](media/audio)
-- Image: [media/images](media/images)
 - Cache: [cache](cache)
 
 Mỗi lần tạo sẽ sinh một file `.apkg` mới, không ghi đè file cũ. Tên file có dạng:
@@ -84,7 +83,6 @@ app/
   dictionary.py
   translator.py
   audio.py
-  image.py
   anki_builder.py
   validator.py
 backend/
@@ -101,6 +99,6 @@ requirements.txt
 
 ## Ghi chú
 
-- Ảnh và âm thanh đều được app tự sinh.
+- Âm thanh được app tự sinh; trường ảnh trong Anki để trống để bạn tự thêm ảnh.
 - Nếu không có mạng, phần tra từ điển có thể thiếu nghĩa hoặc ví dụ.
 - Nếu muốn tạo deck theo ngày, chỉ cần thay danh sách từ trong [input/words.csv](input/words.csv) mỗi hôm rồi chạy lại.

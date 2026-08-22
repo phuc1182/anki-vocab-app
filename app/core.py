@@ -9,13 +9,11 @@ from typing import Callable, Iterable, List
 from .anki_builder import GeneratedWord, build_apkg
 from .audio import create_audio
 from .dictionary import fetch_dictionary_data
-from .image import create_word_card_image
 from .translator import get_vietnamese_meaning
 from .validator import (
     AUDIO_DIR,
     CACHE_DB,
     CACHE_DIR,
-    IMAGE_DIR,
     OUTPUT_DIR,
     build_unique_apkg_path,
     ensure_directories,
@@ -130,16 +128,15 @@ def generate_word_entry(word: str, log: Callable[[str], None] | None = None, reg
     word_audio = AUDIO_DIR / f"{safe_name}_word.mp3"
     sentence_audio = AUDIO_DIR / f"{safe_name}_sentence.mp3"
     meaning_audio = AUDIO_DIR / f"{safe_name}_meaning_vi.mp3"
-    image_file = IMAGE_DIR / f"{safe_name}.jpg"
+    image_file = Path()
 
     if not regenerate:
         cached = get_cached_word(word)
         if cached:
             cached_entry = _cache_to_generated(cached)
-            if all(path.exists() and path.stat().st_size > 0 for path in [cached_entry.word_audio, cached_entry.sentence_audio, cached_entry.meaning_audio, cached_entry.image_file]):
+            if all(path.exists() and path.stat().st_size > 0 for path in [cached_entry.word_audio, cached_entry.sentence_audio, cached_entry.meaning_audio]):
                 if log:
                     log(f"[CACHE] {word}")
-                create_word_card_image(word, cached_entry.vietnamese, cached_entry.meaning, cached_entry.sentence, cached_entry.image_file)
                 return cached_entry
 
     if log:
@@ -158,9 +155,8 @@ def generate_word_entry(word: str, log: Callable[[str], None] | None = None, reg
         await create_audio(vietnamese, meaning_audio, VOICE_VI)
 
     asyncio.run(_generate())
-    create_word_card_image(word, vietnamese, meaning, sentence, image_file)
 
-    for path, label in [(word_audio, "word audio"), (sentence_audio, "sentence audio"), (meaning_audio, "meaning audio"), (image_file, "image file")]:
+    for path, label in [(word_audio, "word audio"), (sentence_audio, "sentence audio"), (meaning_audio, "meaning audio")]:
         validate_nonempty_file(path, label)
 
     entry = GeneratedWord(
