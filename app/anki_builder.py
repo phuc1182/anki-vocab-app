@@ -29,13 +29,12 @@ class GeneratedWord:
 def build_model() -> genanki.Model:
 	return genanki.Model(
 		MODEL_ID,
-		"Auto Vocabulary Model",
+		"Auto Vocabulary Template Model",
 		fields=[
-			{"name": "word"},
+			{"name": "words"},
 			{"name": "meaning"},
-			{"name": "sentence"},
-			{"name": "sentence_cloze"},
-			{"name": "image"},
+			{"name": "sentenses"},
+			{"name": "images"},
 			{"name": "pronounce"},
 			{"name": "vietnamese"},
 			{"name": "sound"},
@@ -44,75 +43,267 @@ def build_model() -> genanki.Model:
 		],
 		templates=[
 			{
-				"name": "Card 1 - Word To Meaning",
+				"name": "Card 1",
 				"qfmt": """
-					<div class="card-box">
-						<div class="label">What does this word mean?</div>
-						<div class="word">{{word}}</div>
-						<div class="pronounce">/{{pronounce}}/</div>
-						<div class="audio">{{sound}}</div>
+					<div class="cardHead">
+					  <div class="word">{{words}}</div>
+					  <div class="pronounce">/ {{pronounce}} /</div>
 					</div>
+					<div class="cardBody">
+						<div class="image">{{images}} </div>
+					</div>
+
+					<div style="display:none" >{{sound}} </div>
 				""",
 				"afmt": """
-					{{FrontSide}}
-					<hr id="answer">
-					<div class="vietnamese">{{vietnamese}}</div>
-					<div class="meaning">{{meaning}}</div>
-					<div class="sentence">{{sentence}}</div>
-					<div class="audio-row">{{sentence_sound}}</div>
-					<div class="audio-row">{{meaning_sound}}</div>
-					<div class="image-box">{{image}}</div>
+					<div class="cardHead">
+					  <div class="word">{{words}}</div>
+					  <div class="pronounce">/ {{pronounce}} /</div>
+					</div>
+					<div class="cardBody">
+					 <div class="meaning">
+					{{meaning}}
+					</div>
+						<div class="vietnamese">
+
+					<hr>
+					{{sentenses}}
+
+
+					</div>
+					<hr>
+					{{vietnamese}}
+					</div>
+
+
+					<div style="display:none" >{{sound}} {{sentence_sound}} {{meaning_sound}} </div>
 				""",
 			},
 			{
-				"name": "Card 2 - Type The Word",
+				"name": "Card 2",
 				"qfmt": """
-					<div class="card-box">
-						<div class="label">Type the missing word</div>
-						<div class="sentence big-sentence">{{sentence_cloze}}</div>
-						<div class="hint">Nghĩa: {{vietnamese}}</div>
-						<div class="type-box">{{type:word}}</div>
-					</div>
+				<div class="myCard">
+				<div class="cardHead">
+				  <div class="hiding" id="original">{{words}}</div>
+				  <div class="word hint" id="hint"></div>
+				  <div class="pronounce">/ {{pronounce}} /</div>
+				</div>
+				<div class="cardBody">
+			 	<div class="meaning">{{meaning}} </div>
+			</div>
+			</div>
+
+			<div class="hide-android"> 
+			{{type:words}}
+			</div>
+
+			<div class="hiding" >{{sound}} {{meaning_sound}} </div>
+			<script>
+			function transformString(inputString) {
+			  const words = inputString.split(' ');
+			  const transformedWords = words.map((word) => {
+			    if (word.length < 3) {
+			      return word; // Skip words with 2 or fewer characters
+			    }
+					const index1 = Math.floor(Math.random() * (word.length - 1));
+					const index2 = Math.floor(Math.random() * (word.length - 1));
+			   const firstChar = word[index1];
+			   const lastChar = word[index2];
+			    const middleUnderscores = '_'.repeat(word.length);
+
+					const newString = middleUnderscores.substring(0, index1) + firstChar + middleUnderscores.substring(index1 + 1);
+					const newString2 = newString.substring(0, index2) + lastChar + newString.substring(index2 + 1);
+			    if (word.length > 7) {
+						const index2 = Math.floor(Math.random() * (word.length - 1));
+						const lastChar = word[index2];
+						const newString3 = newString2.substring(0, index2) + lastChar + newString2.substring(index2 + 1);
+						return newString3;
+					}
+			    return newString2;
+			  });
+			  return transformedWords.join(' ');
+			}
+
+
+			function updateHint() {
+			  const word = document.querySelector("#original").textContent;
+			  document.querySelector("#hint").textContent =
+				  transformString(word);
+			}
+
+
+
+			updateHint();
+
+			</script>
 				""",
 				"afmt": """
-					{{FrontSide}}
-					<hr id="answer">
-					<div class="answer-title">Correct answer</div>
-					<div class="word answer">{{word}}</div>
-					<div class="pronounce">/{{pronounce}}/</div>
-					<div class="meaning">{{meaning}}</div>
-					<div class="sentence">{{sentence}}</div>
-					<div class="audio-row">{{sound}}</div>
-					<div class="audio-row">{{sentence_sound}}</div>
-					<div class="image-box">{{image}}</div>
+				<div class="myCard">
+				  <div class="cardHead">
+					<div class="word">{{words}}</div>
+					<div class="pronounce">/ {{pronounce}} /</div>
+				  </div>
+				  <div class="cardBody">
+					 <div class="image">{{images}} </div>
+					
+				</div>
+
+				</div>
+				
+				<div class="hiding" >{{sound}} </div>
+				<div class="hide-android"> 
+					{{type:words}}
+				</div>
+
+					<div class="vietnamese">{{vietnamese}} </div>
 				""",
 			},
 		],
 		css="""
-			.card {
-				font-family: Arial, sans-serif;
-				font-size: 24px;
-				text-align: center;
-				color: #1f2937;
-				background-color: #ffffff;
+			* {
+			  box-sizing: border-box;
 			}
-			.card-box { padding: 22px; }
-			.label { font-size: 18px; color: #64748b; margin-bottom: 16px; }
-			.word { font-size: 48px; font-weight: bold; color: #2563eb; margin: 14px 0; }
-			.pronounce { font-size: 24px; color: #64748b; margin-top: 8px; }
-			.vietnamese { font-size: 36px; font-weight: bold; color: #16a34a; margin-top: 18px; }
-			.meaning { font-size: 23px; color: #334155; margin-top: 16px; line-height: 1.45; }
-			.sentence { font-size: 25px; color: #111827; margin-top: 18px; line-height: 1.45; }
-			.big-sentence { font-size: 32px; font-weight: bold; margin: 24px 0; }
-			.hint { font-size: 24px; color: #16a34a; margin-top: 12px; }
-			.type-box { margin-top: 24px; }
-			input[type=text] { font-size: 30px; padding: 12px 16px; border: 2px solid #2563eb; border-radius: 12px; text-align: center; max-width: 90%; }
-			.answer-title { font-size: 18px; color: #64748b; margin-top: 16px; }
-			.answer { color: #dc2626; }
-			.audio { margin-top: 14px; }
-			.audio-row { margin-top: 12px; }
-			.image-box { margin-top: 22px; }
-			.image-box img { max-width: 90%; max-height: 340px; border-radius: 18px; box-shadow: 0 4px 18px rgba(0,0,0,0.16); }
+			.card {
+			  text-align: center;
+				background: rgb(245,245,245); 
+				background: linear-gradient(90deg, rgba(245,245,245,1) 0%, rgba(230,230,230,1) 100%);
+			  word-wrap: break-word;
+			  width: 97vw;
+			  height: 92vh;
+			  display: flex;
+			  justify-content: center;
+			  font-family: sans-serif;
+				margin-top : 20px;
+				padding: 20px;
+			}
+
+			.cardHead {
+				padding: 5px 20px;
+				background: #f0f0f0;
+				background: #ededed;
+				border-radius:20px;
+				overflow:hidden;
+			  border-left: 5px solid #cccccc;
+			  border-bottom: 6px solid #bbbbbb;
+				width: 95vw;
+			}
+
+			.android .card .word {
+			font-size: 25px;
+			}
+
+			.card .word {
+
+				font-weight: bold;
+				font-size: 40px; 
+				color:#000000;
+
+			}
+			.android .cardHead .pronounce {
+			font-size: 25px;
+			color: #003366;
+			}
+			.pronounce {
+			  color: #003366;
+			  font-weight: bold;
+			  font-family:"Voces", sans-serif;
+			  font-size: 30px;
+			  margin-top: 8px;
+			}
+
+			.cardBody {
+			  padding: 4%;
+			}
+			.image {
+				height: 200px;
+				max-height: 100%;	
+			}
+			img {
+				max-height: 100%;	
+			}
+			.vietnamese {
+			  font-size: 25px;
+			  font-weight: 600;
+			  text-align: center;
+			  word-wrap: inherit;
+			  color: #005555;
+			}
+
+			.android .vietnamese {
+			font-size: 20px;
+			}
+			.meaning {
+			  font-size: 30px;
+			  font-weight: 600;
+			  text-align: center;
+			  word-wrap: inherit;
+			  color: #003366;
+			}
+
+			.android .meaning {
+			font-size: 20px
+			}
+
+			.hint {
+				font-weight: bold;
+				font-size: 40px; 
+				letter-spacing: 3px; 
+			}
+			/* NightMode */
+			.card .nightMode {
+			  background-color: #444;
+			}
+			.nightMode .myCard {
+			  border-color: #666;
+			}
+			.nightMode .cardHead {
+			  background-color: #666; 
+			}
+
+			.nightMode .word {
+			  color: #eee;
+			}
+
+			.nightMode .pronounce {
+			  color: #ddd;
+			}
+
+			.nightMode .vietnamese {
+			  color: #ccc;
+			}
+
+			.hiding {
+		display:none;}
+
+			#typeans:focus {
+				outline-width: 0;
+			}
+
+
+			#typeans {
+			 font-family: 'Noto Mono' !important;
+			 font-weight: 400 !important;
+			 font-size: 35px !important;
+			 margin-top: 10px; 
+			 text-align: center;
+			 border-radius: 50px;
+			 padding: 1px 20px;
+			}
+
+
+			.android .hide-android {
+			  display: none;
+			}
+			.android input {display: none;
+
+			}
+			code#typeans {
+			 display: inline-block;
+			 padding: 5px 0px; /* input { padding: 1px 0px; } */
+			 border-radius: 100px;
+			}
+
+			
 		""",
 	)
 
@@ -128,9 +319,8 @@ def build_apkg(entries: Iterable[GeneratedWord], output_path: Path, deck_name: s
 			fields=[
 				entry.word,
 				entry.meaning,
-				entry.sentence,
-				entry.sentence_cloze,
-				f'<img src="{entry.image_file.name}">',
+					entry.sentence,
+					f'<img src="{entry.image_file.name}">',
 				entry.pronounce,
 				entry.vietnamese,
 				f"[sound:{entry.word_audio.name}]",
