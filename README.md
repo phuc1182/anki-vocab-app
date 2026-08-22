@@ -10,6 +10,19 @@ Từ thư mục gốc của project, chạy:
 & ".venv\bin\python.exe" backend\main.py
 ```
 
+## Mở bằng file EXE
+
+Bấm đúp vào [AnkiVocabApp.exe](AnkiVocabApp.exe) ở thư mục gốc của project.
+Các thư mục `input`, `output`, `media` và `cache` sẽ được dùng ngay cạnh file EXE.
+
+Để build lại trên Windows:
+
+```powershell
+& ".venv\bin\python.exe" -m pip install pyinstaller
+& ".venv\bin\python.exe" -m PyInstaller --noconfirm --clean --onefile --windowed --name AnkiVocabApp backend\main.py
+Copy-Item "dist\AnkiVocabApp.exe" ".\AnkiVocabApp.exe" -Force
+```
+
 Nếu muốn chạy trực tiếp module giao diện:
 
 ```powershell
@@ -24,6 +37,9 @@ Nếu muốn chạy trực tiếp module giao diện:
 4. Bấm `Generate Today's Deck`.
 5. Chờ app tạo xong file `.apkg`.
 6. Import file đó vào Anki.
+
+Các file `.apkg` do app tạo sẽ luôn nhập vào bộ thẻ riêng `Anki Vocab App`.
+Lần đầu Anki sẽ tạo bộ thẻ này; các lần sau sẽ tiếp tục thêm thẻ vào đúng bộ đó.
 
 ## File được tạo ra
 

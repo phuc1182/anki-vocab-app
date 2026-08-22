@@ -1,6 +1,0 @@
-genanki
-edge-tts
-requests
-pandas
-openpyxl
-pillow

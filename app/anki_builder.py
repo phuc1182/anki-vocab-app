@@ -7,8 +7,9 @@ from typing import Iterable, List
 import genanki
 
 
-MODEL_ID = 1607392401
-DECK_ID = 2059400201
+MODEL_ID = 1784529036
+DECK_ID = 1784529037
+DECK_NAME = "Anki Vocab App"
 
 
 @dataclass
@@ -308,7 +309,7 @@ def build_model() -> genanki.Model:
 	)
 
 
-def build_apkg(entries: Iterable[GeneratedWord], output_path: Path, deck_name: str = "Vocabulary::Auto") -> Path:
+def build_apkg(entries: Iterable[GeneratedWord], output_path: Path, deck_name: str = DECK_NAME) -> Path:
 	model = build_model()
 	deck = genanki.Deck(DECK_ID, deck_name)
 	media_files: List[str] = []
