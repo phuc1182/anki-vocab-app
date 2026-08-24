@@ -100,5 +100,8 @@ requirements.txt
 ## Ghi chú
 
 - Âm thanh được app tự sinh; trường ảnh trong Anki để trống để bạn tự thêm ảnh.
+- Thẻ chỉ hiển thị từ, phát âm, câu ví dụ và nghĩa tiếng Việt; không hiển thị phần meaning tiếng Anh.
+- Phát âm được lấy từ phiên âm IPA phù hợp nhất mà từ điển cung cấp và được làm mới khi có dữ liệu tốt hơn.
+- Ví dụ tiếng Anh được ưu tiên lấy từ từ điển, sau đó tra Google Search và kho câu thật Tatoeba.
 - Nếu không có mạng, phần tra từ điển có thể thiếu nghĩa hoặc ví dụ.
 - Nếu muốn tạo deck theo ngày, chỉ cần thay danh sách từ trong [input/words.csv](input/words.csv) mỗi hôm rồi chạy lại.

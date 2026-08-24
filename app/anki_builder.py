@@ -51,9 +51,8 @@ def build_model() -> genanki.Model:
 					  <div class="pronounce">/ {{pronounce}} /</div>
 					</div>
 					<div class="cardBody">
-						<div class="image">{{images}} </div>
+						<div class="image">{{images}}</div>
 					</div>
-
 					<div style="display:none" >{{sound}} </div>
 				""",
 				"afmt": """
@@ -62,9 +61,6 @@ def build_model() -> genanki.Model:
 					  <div class="pronounce">/ {{pronounce}} /</div>
 					</div>
 					<div class="cardBody">
-					 <div class="meaning">
-					{{meaning}}
-					</div>
 						<div class="vietnamese">
 
 					<hr>
@@ -90,8 +86,8 @@ def build_model() -> genanki.Model:
 				  <div class="pronounce">/ {{pronounce}} /</div>
 				</div>
 				<div class="cardBody">
-			 	<div class="meaning">{{meaning}} </div>
-			</div>
+			 	<div class="word">{{words}}</div>
+				</div>
 			</div>
 
 			<div class="hide-android"> 

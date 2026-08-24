@@ -135,9 +135,23 @@ def generate_word_entry(word: str, log: Callable[[str], None] | None = None, reg
         if cached:
             cached_entry = _cache_to_generated(cached)
             if all(path.exists() and path.stat().st_size > 0 for path in [cached_entry.word_audio, cached_entry.sentence_audio, cached_entry.meaning_audio]):
-                if log:
-                    log(f"[CACHE] {word}")
-                return cached_entry
+                if cached_entry.sentence == f"I learned the word {word} today.":
+                    cached = None
+                else:
+                    translated = get_vietnamese_meaning(word)
+                    if translated != cached_entry.vietnamese:
+                        cached_entry.vietnamese = translated
+                        cached_entry.meaning_audio.unlink(missing_ok=True)
+                        asyncio.run(create_audio(translated, cached_entry.meaning_audio, VOICE_VI))
+                        save_cached_word(cached_entry)
+                    fresh_pronounce = fetch_dictionary_data(word)["pronounce"]
+                    if fresh_pronounce and fresh_pronounce != cached_entry.pronounce:
+                        cached_entry.pronounce = fresh_pronounce
+                        save_cached_word(cached_entry)
+                if cached is not None:
+                    if log:
+                        log(f"[CACHE] {word}")
+                    return cached_entry
 
     if log:
         log(f"[NEW] {word}")
@@ -146,7 +160,7 @@ def generate_word_entry(word: str, log: Callable[[str], None] | None = None, reg
     meaning = dictionary_data["meaning"]
     pronounce = dictionary_data["pronounce"]
     sentence = dictionary_data["sentence"]
-    vietnamese = get_vietnamese_meaning(word, meaning)
+    vietnamese = get_vietnamese_meaning(word)
     sentence_cloze = make_cloze_sentence(sentence, word)
 
     async def _generate() -> None:
