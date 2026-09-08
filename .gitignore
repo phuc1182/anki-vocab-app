@@ -14,6 +14,7 @@ cache/*
 media/audio/*
 media/images/*
 output/*
+input/*
 
 # Keep the input template available
 !input/words.csv

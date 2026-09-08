@@ -1,17 +1,18 @@
 from __future__ import annotations
 
 import html
+import os
 import re
-import sys
 from hashlib import sha1
 from pathlib import Path
 from datetime import datetime
 
 
-if getattr(sys, "frozen", False):
-	BASE_DIR = Path(sys.executable).resolve().parent
+if os.name == "nt":
+	DATA_ROOT = Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local"))
 else:
-	BASE_DIR = Path(__file__).resolve().parent.parent
+	DATA_ROOT = Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local" / "share"))
+BASE_DIR = DATA_ROOT / "AnkiVocabApp"
 INPUT_DIR = BASE_DIR / "input"
 OUTPUT_DIR = BASE_DIR / "output"
 MEDIA_DIR = BASE_DIR / "media"

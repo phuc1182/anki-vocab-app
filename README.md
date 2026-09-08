@@ -7,33 +7,34 @@ App nhập từ mới, tự tạo audio, để người dùng tự thêm hình �
 Từ thư mục gốc của project, chạy:
 
 ```powershell
-& ".venv\bin\python.exe" backend\main.py
+& ".venv\Scripts\python.exe" backend\main.py
 ```
 
 ## Mở bằng file EXE
 
 Bấm đúp vào [AnkiVocabApp.exe](AnkiVocabApp.exe) ở thư mục gốc của project.
-Các thư mục `input`, `output`, `media` và `cache` sẽ được dùng ngay cạnh file EXE.
+Các file dữ liệu người dùng được lưu ngoài project tại `%LOCALAPPDATA%\AnkiVocabApp\`.
+Vì vậy file output, audio và cache sẽ không bị push lên GitHub.
 
 Để build lại trên Windows:
 
 ```powershell
-& ".venv\bin\python.exe" -m pip install pyinstaller
-& ".venv\bin\python.exe" -m PyInstaller --noconfirm --clean --onefile --windowed --name AnkiVocabApp backend\main.py
+& ".venv\Scripts\python.exe" -m pip install pyinstaller
+& ".venv\Scripts\python.exe" -m PyInstaller --noconfirm --clean --onefile --windowed --name AnkiVocabApp backend\main.py
 Copy-Item "dist\AnkiVocabApp.exe" ".\AnkiVocabApp.exe" -Force
 ```
 
 Nếu muốn chạy trực tiếp module giao diện:
 
 ```powershell
-& ".venv\bin\python.exe" -m app.main
+& ".venv\Scripts\python.exe" -m app.main
 ```
 
 ## Cách dùng hằng ngày
 
 1. Mở app.
 2. Dán từ mới vào ô nhập, mỗi dòng một từ.
-3. Hoặc bấm `Load CSV` để nạp danh sách từ từ [input/words.csv](input/words.csv).
+3. Hoặc bấm `Load CSV` để chọn file danh sách từ ở bất kỳ vị trí nào.
 4. Bấm `Generate Today's Deck`.
 5. Chờ app tạo xong file `.apkg`.
 6. Import file đó vào Anki.
@@ -43,9 +44,9 @@ Lần đầu Anki sẽ tạo bộ thẻ này; các lần sau sẽ tiếp tục t
 
 ## File được tạo ra
 
-- File deck: [output](output)
-- Audio: [media/audio](media/audio)
-- Cache: [cache](cache)
+- File deck: `%LOCALAPPDATA%\AnkiVocabApp\output`
+- Audio: `%LOCALAPPDATA%\AnkiVocabApp\media\audio`
+- Cache: `%LOCALAPPDATA%\AnkiVocabApp\cache`
 
 Mỗi lần tạo sẽ sinh một file `.apkg` mới, không ghi đè file cũ. Tên file có dạng:
 
@@ -65,7 +66,7 @@ walk
 blueprint
 ```
 
-Bạn cũng có thể sửa trực tiếp [input/words.csv](input/words.csv) cho từ của từng ngày.
+Bạn có thể dùng nút `Load CSV` để chọn file từ ở bất kỳ thư mục nào.
 
 ## Import vào Anki
 
@@ -104,4 +105,4 @@ requirements.txt
 - Phát âm được lấy từ phiên âm IPA phù hợp nhất mà từ điển cung cấp và được làm mới khi có dữ liệu tốt hơn.
 - Ví dụ tiếng Anh được ưu tiên lấy từ từ điển, sau đó tra Google Search và kho câu thật Tatoeba.
 - Nếu không có mạng, phần tra từ điển có thể thiếu nghĩa hoặc ví dụ.
-- Nếu muốn tạo deck theo ngày, chỉ cần thay danh sách từ trong [input/words.csv](input/words.csv) mỗi hôm rồi chạy lại.
+- Nếu muốn tạo deck theo ngày, chọn file danh sách từ bằng nút `Load CSV` rồi chạy lại.

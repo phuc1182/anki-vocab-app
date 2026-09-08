@@ -84,7 +84,7 @@ class VocabApp:
         self.clear_after_generate = tk.BooleanVar(value=True)
         ttk.Checkbutton(button_row, text="Clear input after generate", variable=self.clear_after_generate).grid(row=0, column=4, sticky="w", padx=(14, 0))
 
-        self.status_var = tk.StringVar(value="Output: a unique .apkg file will be created in output/")
+        self.status_var = tk.StringVar(value=f"Output folder: {OUTPUT_DIR}")
         ttk.Label(body, textvariable=self.status_var, style="Body.TLabel").grid(row=1, column=0, sticky="w", pady=(14, 8))
 
         recent_card = ttk.Frame(body, padding=18, style="Card.TFrame")
@@ -93,6 +93,11 @@ class VocabApp:
         ttk.Label(recent_card, text="Step 2. Kết quả gần đây", style="Body.TLabel").grid(row=0, column=0, sticky="w")
         self.recent_var = tk.StringVar(value="Chưa có file nào được tạo trong phiên này.")
         ttk.Label(recent_card, textvariable=self.recent_var, style="Muted.TLabel", wraplength=760, justify="left").grid(row=1, column=0, sticky="w", pady=(6, 0))
+        self.output_listbox = tk.Listbox(recent_card, height=4, font=("Consolas", 10), exportselection=False)
+        self.output_listbox.grid(row=2, column=0, columnspan=2, sticky="ew", pady=(8, 8))
+        self.output_listbox.bind("<Double-1>", lambda _event: self._open_selected_output())
+        ttk.Button(recent_card, text="Open Selected", command=self._open_selected_output).grid(row=3, column=0, sticky="w")
+        ttk.Button(recent_card, text="Refresh List", command=self._refresh_recent_output).grid(row=3, column=1, sticky="w", padx=(10, 0))
 
         log_card = ttk.Frame(body, padding=18, style="Card.TFrame")
         log_card.grid(row=3, column=0, sticky="nsew")
@@ -114,11 +119,31 @@ class VocabApp:
 
     def _refresh_recent_output(self) -> None:
         apkg_files = sorted(OUTPUT_DIR.glob("*.apkg"), key=lambda path: path.stat().st_mtime, reverse=True)
+        self.output_listbox.delete(0, "end")
+        for apkg_file in apkg_files:
+            self.output_listbox.insert("end", apkg_file.name)
         if apkg_files:
             latest = apkg_files[0]
             self.recent_var.set(f"Latest deck: {latest.name}")
         else:
-            self.recent_var.set("Chưa có file .apkg nào trong output/.")
+            self.recent_var.set(f"Chưa có file .apkg nào trong {OUTPUT_DIR}.")
+
+    def _open_selected_output(self) -> None:
+        selection = self.output_listbox.curselection()
+        if not selection:
+            messagebox.showinfo("Open Output", "Hãy chọn một file output trước.")
+            return
+
+        output_path = OUTPUT_DIR / self.output_listbox.get(selection[0])
+        if not output_path.exists():
+            self._refresh_recent_output()
+            messagebox.showwarning("Missing file", "File output không còn tồn tại.")
+            return
+
+        try:
+            os.startfile(output_path)
+        except Exception as exc:
+            messagebox.showerror("Open Output", str(exc))
 
     def _set_busy(self, busy: bool) -> None:
         self.generate_button.configure(state="disabled" if busy else "normal")
