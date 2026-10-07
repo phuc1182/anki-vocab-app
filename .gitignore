@@ -14,7 +14,10 @@ cache/*
 media/audio/*
 media/images/*
 output/*
-input/*
+input/
 
-# Keep the input template available
-!input/words.csv
+# Packaging and test caches
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/

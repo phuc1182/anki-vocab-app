@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "anki-vocab-app"
+version = "0.1.0"
+description = "Create Anki vocabulary decks with audio and Vietnamese translations."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "edge-tts",
+    "genanki",
+    "requests",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+]
+
+[project.scripts]
+anki-vocab-app = "anki_vocab_app.main:run_app"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

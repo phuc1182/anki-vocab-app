@@ -1,108 +1,101 @@
-# anki-vocab-app
+# Anki Vocab App
 
-App nhập từ mới, tự tạo audio, để người dùng tự thêm hình ảnh, và xuất file Anki `.apkg` riêng cho mỗi lần chạy.
+Ứng dụng desktop giúp tạo bộ thẻ Anki từ danh sách từ vựng. Ứng dụng tự
+tra nghĩa, câu ví dụ, bản dịch tiếng Việt và tạo audio; hình ảnh có thể
+được thêm thủ công trong Anki.
 
-## Chạy app
+## Tính năng
 
-Từ thư mục gốc của project, chạy:
+- Nhập từ trực tiếp hoặc từ file CSV.
+- Tra dữ liệu từ điển và câu ví dụ trực tuyến.
+- Tạo audio tiếng Anh và tiếng Việt bằng Edge TTS.
+- Xuất mỗi lần chạy thành một file `.apkg` riêng.
+- Lưu cache và dữ liệu ứng dụng ngoài repository.
 
-```powershell
-& ".venv\Scripts\python.exe" backend\main.py
-```
+## Yêu cầu
 
-## Mở bằng file EXE
+- Windows 10/11 (giao diện dùng Tkinter).
+- Python 3.10 trở lên.
+- Kết nối Internet khi cần tra dữ liệu hoặc tạo audio.
 
-Bấm đúp vào [AnkiVocabApp.exe](AnkiVocabApp.exe) ở thư mục gốc của project.
-Các file dữ liệu người dùng được lưu ngoài project tại `%LOCALAPPDATA%\AnkiVocabApp\`.
-Vì vậy file output, audio và cache sẽ không bị push lên GitHub.
+## Cài đặt từ source
 
-Để build lại trên Windows:
-
-```powershell
-& ".venv\Scripts\python.exe" -m pip install pyinstaller
-& ".venv\Scripts\python.exe" -m PyInstaller --noconfirm --clean --onefile --windowed --name AnkiVocabApp backend\main.py
-Copy-Item "dist\AnkiVocabApp.exe" ".\AnkiVocabApp.exe" -Force
-```
-
-Nếu muốn chạy trực tiếp module giao diện:
+Từ thư mục gốc project:
 
 ```powershell
-& ".venv\Scripts\python.exe" -m app.main
+py -m venv .venv
+& ".venv\Scripts\python.exe" -m pip install --upgrade pip
+& ".venv\Scripts\python.exe" -m pip install -e ".[dev]"
 ```
 
-## Cách dùng hằng ngày
+## Chạy ứng dụng
 
-1. Mở app.
-2. Dán từ mới vào ô nhập, mỗi dòng một từ.
-3. Hoặc bấm `Load CSV` để chọn file danh sách từ ở bất kỳ vị trí nào.
-4. Bấm `Generate Today's Deck`.
-5. Chờ app tạo xong file `.apkg`.
-6. Import file đó vào Anki.
+```powershell
+& ".venv\Scripts\python.exe" -m anki_vocab_app
+```
 
-Các file `.apkg` do app tạo sẽ luôn nhập vào bộ thẻ riêng `Anki Vocab App`.
-Lần đầu Anki sẽ tạo bộ thẻ này; các lần sau sẽ tiếp tục thêm thẻ vào đúng bộ đó.
+Sau khi cài editable, có thể dùng entrypoint:
 
-## File được tạo ra
+```powershell
+anki-vocab-app
+```
 
-- File deck: `%LOCALAPPDATA%\AnkiVocabApp\output`
+## Kiểm thử
+
+```powershell
+& ".venv\Scripts\python.exe" -m pytest
+```
+
+## Build file EXE trên Windows
+
+```powershell
+& ".venv\Scripts\python.exe" -m PyInstaller --noconfirm --clean AnkiVocabApp.spec
+```
+
+File build được tạo trong `dist/` và không được commit vào repository.
+
+## Cách sử dụng
+
+1. Mở ứng dụng.
+2. Dán từ mới vào ô nhập, mỗi dòng một từ; hoặc chọn `Load CSV`.
+3. Chọn `Generate Today's Deck`.
+4. Import file `.apkg` được tạo vào Anki.
+
+Mỗi file được nhập vào bộ thẻ `Anki Vocab App`. Dữ liệu runtime nằm tại:
+
+- Deck: `%LOCALAPPDATA%\AnkiVocabApp\output`
 - Audio: `%LOCALAPPDATA%\AnkiVocabApp\media\audio`
 - Cache: `%LOCALAPPDATA%\AnkiVocabApp\cache`
 
-Mỗi lần tạo sẽ sinh một file `.apkg` mới, không ghi đè file cũ. Tên file có dạng:
+Tên file deck có dạng:
 
 ```text
 Vocabulary_YYYYMMDD_Action_YYYYMMDD_HHMMSS_hash.apkg
 ```
 
-## Cách nhập từ
-
-Mỗi dòng là một từ.
-
-Ví dụ:
+## Cấu trúc project
 
 ```text
-run
-walk
-blueprint
-```
-
-Bạn có thể dùng nút `Load CSV` để chọn file từ ở bất kỳ thư mục nào.
-
-## Import vào Anki
-
-1. Mở Anki.
-2. Chọn `Import File`.
-3. Chọn file `.apkg` mới trong [output](output).
-4. Import xong là dùng được.
-
-## Cấu trúc chính
-
-```text
-app/
-  main.py
-  core.py
-  dictionary.py
-  translator.py
-  audio.py
-  anki_builder.py
-  validator.py
-backend/
-  main.py
-input/
-  words.csv
-output/
-media/
-  audio/
-  images/
-cache/
+src/
+  anki_vocab_app/
+    __main__.py       # python -m anki_vocab_app
+    main.py           # giao diện Tkinter
+    core.py           # luồng tạo deck
+    anki_builder.py   # model và package Anki
+    audio.py          # tạo audio
+    dictionary.py     # tra từ điển và câu ví dụ
+    translator.py     # dịch tiếng Việt
+    validator.py      # đường dẫn và tiện ích dữ liệu
+scripts/
+  run_app.py          # launcher cho PyInstaller
+tests/
+  test_validator.py
+pyproject.toml
 requirements.txt
+AnkiVocabApp.spec
 ```
 
-## Ghi chú
+## Đóng góp
 
-- Âm thanh được app tự sinh; trường ảnh trong Anki để trống để bạn tự thêm ảnh.
-- Thẻ chỉ hiển thị từ, phát âm, câu ví dụ và nghĩa tiếng Việt; không hiển thị phần meaning tiếng Anh.
-- Phát âm được lấy từ phiên âm IPA phù hợp nhất mà từ điển cung cấp và được làm mới khi có dữ liệu tốt hơn.
-- Ví dụ tiếng Anh được ưu tiên lấy từ từ điển, sau đó tra Google Search và kho câu thật Tatoeba.
-- Nếu không có mạng, phần tra từ điển có thể thiếu nghĩa hoặc ví dụ.
-- Nếu muốn tạo deck theo ngày, chọn file danh sách từ bằng nút `Load CSV` rồi chạy lại.
+Pull request và issue được hoan nghênh. Trước khi gửi pull request, hãy
+chạy test và mô tả rõ thay đổi trong giao diện hoặc định dạng deck.
