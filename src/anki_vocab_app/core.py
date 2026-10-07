@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import sqlite3
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from pathlib import Path
 from typing import Callable, Iterable, List
@@ -26,6 +27,7 @@ from .validator import (
 
 VOICE_EN = "en-US-JennyNeural"
 VOICE_VI = "vi-VN-HoaiMyNeural"
+MAX_PARALLEL_WORDS = 4
 
 
 def _cache_to_generated(row: dict) -> GeneratedWord:
@@ -137,17 +139,6 @@ def generate_word_entry(word: str, log: Callable[[str], None] | None = None, reg
             if all(path.exists() and path.stat().st_size > 0 for path in [cached_entry.word_audio, cached_entry.sentence_audio, cached_entry.meaning_audio]):
                 if cached_entry.sentence == f"I learned the word {word} today.":
                     cached = None
-                else:
-                    translated = get_vietnamese_meaning(word)
-                    if translated != cached_entry.vietnamese:
-                        cached_entry.vietnamese = translated
-                        cached_entry.meaning_audio.unlink(missing_ok=True)
-                        asyncio.run(create_audio(translated, cached_entry.meaning_audio, VOICE_VI))
-                        save_cached_word(cached_entry)
-                    fresh_pronounce = fetch_dictionary_data(word)["pronounce"]
-                    if fresh_pronounce and fresh_pronounce != cached_entry.pronounce:
-                        cached_entry.pronounce = fresh_pronounce
-                        save_cached_word(cached_entry)
                 if cached is not None:
                     if log:
                         log(f"[CACHE] {word}")
@@ -164,9 +155,11 @@ def generate_word_entry(word: str, log: Callable[[str], None] | None = None, reg
     sentence_cloze = make_cloze_sentence(sentence, word)
 
     async def _generate() -> None:
-        await create_audio(word, word_audio, VOICE_EN)
-        await create_audio(sentence, sentence_audio, VOICE_EN)
-        await create_audio(vietnamese, meaning_audio, VOICE_VI)
+        await asyncio.gather(
+            create_audio(word, word_audio, VOICE_EN),
+            create_audio(sentence, sentence_audio, VOICE_EN),
+            create_audio(vietnamese, meaning_audio, VOICE_VI),
+        )
 
     asyncio.run(_generate())
 
@@ -191,13 +184,25 @@ def generate_word_entry(word: str, log: Callable[[str], None] | None = None, reg
 
 
 def generate_deck(words: Iterable[str], log: Callable[[str], None] | None = None, output_path: Path | None = None):
-    entries: List[GeneratedWord] = []
-    word_list = [word.strip() for word in words if word.strip()]
-    for cleaned in word_list:
-        entries.append(generate_word_entry(cleaned, log=log))
+    word_list: List[str] = []
+    seen: set[str] = set()
+    for word in words:
+        cleaned = word.strip()
+        key = cleaned.casefold()
+        if cleaned and key not in seen:
+            word_list.append(cleaned)
+            seen.add(key)
 
-    if not entries:
+    if not word_list:
         raise ValueError("No words provided.")
+
+    with ThreadPoolExecutor(max_workers=min(MAX_PARALLEL_WORDS, len(word_list))) as executor:
+        entries = list(
+            executor.map(
+                lambda word: generate_word_entry(word, log=log),
+                word_list,
+            )
+        )
 
     if output_path is None:
         output_path = build_unique_apkg_path(word_list)

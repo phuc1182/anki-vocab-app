@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 import asyncio
+import threading
 from pathlib import Path
 
 import edge_tts
 
 from .validator import validate_nonempty_file
+
+
+_AUDIO_SLOTS = threading.BoundedSemaphore(3)
 
 
 async def create_audio(text: str, output_path: Path, voice: str) -> None:
@@ -18,6 +22,7 @@ async def create_audio(text: str, output_path: Path, voice: str) -> None:
 
 	last_error: Exception | None = None
 	for attempt in range(3):
+		await asyncio.to_thread(_AUDIO_SLOTS.acquire)
 		try:
 			output_path.unlink(missing_ok=True)
 			communicator = edge_tts.Communicate(text=text, voice=voice)
@@ -28,7 +33,9 @@ async def create_audio(text: str, output_path: Path, voice: str) -> None:
 			last_error = exc
 			output_path.unlink(missing_ok=True)
 			if attempt < 2:
-				await asyncio.sleep(1)
+				await asyncio.sleep(2**attempt)
+		finally:
+			_AUDIO_SLOTS.release()
 
 	raise RuntimeError(
 		f"Không thể tạo audio cho '{text}'. Edge TTS không trả về audio sau 3 lần thử."

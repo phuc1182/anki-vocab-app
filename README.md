@@ -11,6 +11,7 @@ tra nghĩa, câu ví dụ, bản dịch tiếng Việt và tạo audio; hình �
 - Tạo audio tiếng Anh và tiếng Việt bằng Edge TTS.
 - Xuất mỗi lần chạy thành một file `.apkg` riêng.
 - Lưu cache và dữ liệu ứng dụng ngoài repository.
+- Tạo nhiều từ đồng thời và bỏ qua dữ liệu đã có trong cache để giảm thời gian chờ.
 
 ## Yêu cầu
 
