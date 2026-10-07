@@ -18,15 +18,43 @@ tra nghĩa, câu ví dụ, bản dịch tiếng Việt và tạo audio; hình �
 - Python 3.10 trở lên.
 - Kết nối Internet khi cần tra dữ liệu hoặc tạo audio.
 
+## Dùng nhanh trên Windows
+
+Nếu bạn chỉ muốn sử dụng ứng dụng, không cần cài Python hoặc mở terminal:
+
+1. Mở trang [Releases](https://github.com/phuc1182/anki-vocab-app/releases).
+2. Tải `AnkiVocabApp.exe` từ phiên bản mới nhất.
+3. Bấm đúp vào file đã tải để mở ứng dụng.
+
+Windows Defender có thể hiển thị cảnh báo với file EXE tự phát hành. Chỉ
+chọn `More info` → `Run anyway` khi file được tải từ Releases chính thức
+của repository này.
+
+Ứng dụng cần Internet để tra từ, dịch và tạo audio. Không cần chép theo
+thư mục `src/`, `.venv/`, `build/` hoặc cài thêm thư viện Python.
+
 ## Cài đặt từ source
 
-Từ thư mục gốc project:
+Từ thư mục gốc project, mở PowerShell:
 
 ```powershell
-py -m venv .venv
+# Dùng "py" nếu máy có Python Launcher; nếu không, thay bằng "python".
+python -m venv .venv
 & ".venv\Scripts\python.exe" -m pip install --upgrade pip
 & ".venv\Scripts\python.exe" -m pip install -e ".[dev]"
 ```
+
+Nếu `.venv` đã tồn tại nhưng báo `No module named pip`, khôi phục pip trước:
+
+```powershell
+& ".venv\Scripts\python.exe" -m ensurepip --upgrade
+& ".venv\Scripts\python.exe" -m pip install --upgrade pip
+& ".venv\Scripts\python.exe" -m pip install -e ".[dev]"
+```
+
+Nếu Python chưa được cài hoặc lệnh `python` không hoạt động, hãy cài Python
+3.10+ rồi mở lại PowerShell. Khi cài Python trên Windows, nên bật tùy chọn
+`Add Python to PATH`.
 
 ## Chạy ứng dụng
 
@@ -53,6 +81,14 @@ anki-vocab-app
 ```
 
 File build được tạo trong `dist/` và không được commit vào repository.
+Để tạo bản phát hành tự động, tạo tag dạng `v0.1.0` và push lên GitHub:
+
+```powershell
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+GitHub Actions sẽ build EXE và đính kèm nó vào GitHub Release.
 
 ## Cách sử dụng
 
