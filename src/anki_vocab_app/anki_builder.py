@@ -7,7 +7,7 @@ from typing import Iterable, List
 import genanki
 
 
-MODEL_ID = 1784529036
+MODEL_ID = 1784529038
 DECK_ID = 1784529037
 DECK_NAME = "Anki Vocab App"
 
@@ -61,19 +61,13 @@ def build_model() -> genanki.Model:
 					  <div class="pronounce">/ {{pronounce}} /</div>
 					</div>
 					<div class="cardBody">
-						<div class="vietnamese">
-
-					<hr>
-					{{sentenses}}
-
-
+						<div class="meaning">{{meaning}}</div>
+						<hr>
+						<div class="vietnamese">{{sentenses}}</div>
+						<hr>
+						<div class="vietnamese">{{vietnamese}}</div>
 					</div>
-					<hr>
-					{{vietnamese}}
-					</div>
-
-
-					<div style="display:none" >{{sound}} {{sentence_sound}} {{meaning_sound}} </div>
+					<div style="display:none">{{sound}} {{sentence_sound}} {{meaning_sound}}</div>
 				""",
 			},
 			{
@@ -85,16 +79,13 @@ def build_model() -> genanki.Model:
 				  <div class="word hint" id="hint"></div>
 				  <div class="pronounce">/ {{pronounce}} /</div>
 				</div>
-				<div class="cardBody">
-			 	<div class="word">{{words}}</div>
-				</div>
 			</div>
 
 			<div class="hide-android"> 
 			{{type:words}}
 			</div>
 
-			<div class="hiding" >{{sound}} {{meaning_sound}} </div>
+			<div class="hiding">{{meaning_sound}}</div>
 			<script>
 			function transformString(inputString) {
 			  const words = inputString.split(' ');
@@ -141,18 +132,18 @@ def build_model() -> genanki.Model:
 					<div class="pronounce">/ {{pronounce}} /</div>
 				  </div>
 				  <div class="cardBody">
-					 <div class="image">{{images}} </div>
-					
+					 <div class="image">{{images}}</div>
+					 <div class="meaning">{{meaning}}</div>
+					 <hr>
+					 <div class="vietnamese">{{sentenses}}</div>
+					 <hr>
+					 <div class="vietnamese">{{vietnamese}}</div>
 				</div>
-
 				</div>
-				
-				<div class="hiding" >{{sound}} </div>
+				<div class="hiding">{{sound}} {{sentence_sound}} {{meaning_sound}}</div>
 				<div class="hide-android"> 
 					{{type:words}}
 				</div>
-
-					<div class="vietnamese">{{vietnamese}} </div>
 				""",
 			},
 		],
@@ -332,6 +323,6 @@ def build_apkg(entries: Iterable[GeneratedWord], output_path: Path, deck_name: s
 		media_files.extend([str(entry.word_audio), str(entry.sentence_audio), str(entry.meaning_audio)])
 
 	package = genanki.Package(deck)
-	package.media_files = media_files
+	package.media_files = list(dict.fromkeys(media_files))
 	package.write_to_file(str(output_path))
 	return output_path

@@ -36,9 +36,9 @@ def sanitize_filename(text: str) -> str:
 
 
 def make_cloze_sentence(sentence: str, word: str) -> str:
-	pattern = re.compile(re.escape(word), re.IGNORECASE)
-	result = pattern.sub("____", sentence, count=1)
-	if result == sentence:
+	pattern = re.compile(rf"\b{re.escape(word)}\b", re.IGNORECASE)
+	result, count = pattern.subn("____", sentence, count=1)
+	if count == 0:
 		return f"____ means {word}."
 	return result
 
