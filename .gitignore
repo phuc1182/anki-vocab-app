@@ -8,6 +8,7 @@ __pycache__/
 build/
 dist/
 *.spec
+!AnkiVocabApp.spec
 
 # App-generated data
 cache/*

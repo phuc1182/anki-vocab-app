@@ -49,7 +49,7 @@ class VocabApp:
         ttk.Label(header, text="Daily workflow: paste words, generate one deck, and study the same day.", style="Hero.TLabel").grid(row=1, column=0, sticky="w", pady=(6, 0))
         ttk.Label(
             header,
-            text="Nhập từ mới, chương trình sẽ tự tạo audio, hình ảnh và file .apkg riêng cho từng lần chạy.",
+            text="Nhập từ mới, chương trình sẽ tự tra nghĩa, tạo audio và file .apkg riêng cho từng lần chạy.",
             style="SubTitle.TLabel",
         ).grid(row=2, column=0, sticky="w", pady=(6, 0))
 
@@ -165,7 +165,12 @@ class VocabApp:
         if not file_path:
             return
 
-        content = Path(file_path).read_text(encoding="utf-8")
+        try:
+            content = _read_text_file(Path(file_path))
+        except OSError as exc:
+            messagebox.showerror("Load CSV", str(exc))
+            return
+
         words = split_words(content)
         if not words:
             messagebox.showwarning("Empty file", "File không có từ hợp lệ.")
@@ -198,12 +203,12 @@ class VocabApp:
                 output_path, entries = generate_deck(words, log=self._thread_log)
                 self.root.after(0, lambda: self._generation_done(output_path, entries))
             except Exception as exc:
-                self.root.after(0, lambda: self._generation_failed(exc))
+                self.root.after(0, lambda error=exc: self._generation_failed(error))
 
         threading.Thread(target=worker, daemon=True).start()
 
     def _thread_log(self, message: str) -> None:
-        self.root.after(0, lambda: self._log(message))
+        self.root.after(0, lambda text=message: self._log(text))
 
     def _generation_done(self, output_path, entries) -> None:
         self._set_busy(False)
@@ -219,6 +224,16 @@ class VocabApp:
         self.status_var.set("Generation failed.")
         self._log(f"Error: {exc}")
         messagebox.showerror("Generation failed", str(exc))
+
+
+def _read_text_file(path: Path) -> str:
+    raw = path.read_bytes()
+    for encoding in ("utf-8-sig", "utf-8", "cp1258", "cp1252"):
+        try:
+            return raw.decode(encoding)
+        except UnicodeDecodeError:
+            continue
+    return raw.decode("utf-8", errors="replace")
 
 
 def run_app() -> None:
