@@ -292,8 +292,3 @@ Khi gửi pull request:
 2. Giữ thay đổi tập trung vào một mục tiêu.
 3. Chạy test và `git diff --check`.
 4. Cập nhật README nếu thay đổi cách cài đặt hoặc sử dụng.
-
-## License
-
-Repository hiện chưa khai báo file `LICENSE`. Hãy bổ sung giấy phép trước
-khi phân phối chính thức hoặc cho phép sử dụng lại code ở quy mô lớn.
