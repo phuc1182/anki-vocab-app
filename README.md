@@ -226,6 +226,18 @@ và cấp phép theo **CC BY-SA 4.0**. Dữ liệu này ghi công các nguồn u
 được liệt kê trong
 [ATTRIBUTION.md](https://github.com/skypediacode/english-vietnamese-dictionary/blob/main/ATTRIBUTION.md).
 
+## Giấy phép
+
+Giấy phép được tách theo loại nội dung:
+
+- **Mã nguồn ứng dụng:** [MIT License](LICENSE).
+- **Database từ điển tích hợp:** [CC BY-SA 4.0](DATA-LICENSE.md).
+
+MIT chỉ áp dụng cho mã nguồn gốc của ứng dụng, không áp dụng cho database
+từ điển hoặc các dữ liệu upstream đi kèm. Khi phân phối lại ứng dụng có chứa
+database, hãy giữ lại [`LICENSE`](LICENSE), [`DATA-LICENSE.md`](DATA-LICENSE.md)
+và các thông tin ghi công bắt buộc.
+
 Mỗi lần tạo deck sẽ sinh một file mới, ví dụ:
 
 ```text
