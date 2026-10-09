@@ -14,11 +14,15 @@ else:
 	DATA_ROOT = Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local" / "share"))
 BASE_DIR = DATA_ROOT / "AnkiVocabApp"
 INPUT_DIR = BASE_DIR / "input"
-OUTPUT_DIR = BASE_DIR / "output"
+OUTPUT_DIR = BASE_DIR / "Anki Vocab App"
 MEDIA_DIR = BASE_DIR / "media"
 AUDIO_DIR = MEDIA_DIR / "audio"
 CACHE_DIR = BASE_DIR / "cache"
 CACHE_DB = CACHE_DIR / "vocab_cache.sqlite"
+DICTIONARY_PATH = BASE_DIR / "dictionary.mdx"
+DICTIONARY_TAB_PATH = BASE_DIR / "dictionary.tab"
+DICTIONARY_INDEX_DB = CACHE_DIR / "dictionary_index.sqlite"
+OFFLINE_DICTIONARY_PATH = Path(__file__).resolve().parent / "data" / "dictionary_en_vi.db"
 INPUT_FILE = INPUT_DIR / "words.csv"
 OUTPUT_APKG = OUTPUT_DIR / "VocabularyAuto.apkg"
 
@@ -56,9 +60,14 @@ def validate_nonempty_file(file_path: Path, label: str) -> None:
 		raise ValueError(f"Empty {label}: {file_path}")
 
 
-def build_unique_apkg_path(words: list[str]) -> Path:
+def words_digest(words: list[str]) -> str:
 	joined = "|".join(word.strip().lower() for word in words if word.strip())
-	digest = sha1(joined.encode("utf-8")).hexdigest()[:8]
-	timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-	day_stamp = datetime.now().strftime("%Y%m%d")
+	return sha1(joined.encode("utf-8")).hexdigest()[:8]
+
+
+def build_unique_apkg_path(words: list[str], when: datetime | None = None) -> Path:
+	created_at = when or datetime.now()
+	digest = words_digest(words)
+	timestamp = created_at.strftime("%Y%m%d_%H%M%S")
+	day_stamp = created_at.strftime("%Y%m%d")
 	return OUTPUT_DIR / f"Vocabulary_{day_stamp}_Action_{timestamp}_{digest}.apkg"

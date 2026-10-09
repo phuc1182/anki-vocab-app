@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
+from hashlib import sha1
 from pathlib import Path
 from typing import Iterable, List
 
@@ -12,18 +14,30 @@ DECK_ID = 1784529037
 DECK_NAME = "Anki Vocab App"
 
 
+def nested_deck_name(parent_name: str, when: datetime, digest: str) -> str:
+	label = when.strftime("%Y-%m-%d %H:%M:%S")
+	suffix = f"{label} {digest}".strip()
+	return f"{parent_name}::{suffix}"
+
+
+def deck_id_for(name: str) -> int:
+	value = int(sha1(f"anki-vocab-app:{name}".encode("utf-8")).hexdigest()[:8], 16)
+	deck_id = 1_000_000_000 + (value % 1_000_000_000)
+	if deck_id == MODEL_ID:
+		return deck_id + 1
+	return deck_id
+
+
 @dataclass
 class GeneratedWord:
 	word: str
 	safe_name: str
-	meaning: str
 	pronounce: str
 	sentence: str
 	sentence_cloze: str
 	vietnamese: str
 	word_audio: Path
 	sentence_audio: Path
-	meaning_audio: Path
 	image_file: Path
 
 
@@ -33,14 +47,12 @@ def build_model() -> genanki.Model:
 		"Auto Vocabulary Template Model",
 		fields=[
 			{"name": "words"},
-			{"name": "meaning"},
 			{"name": "sentenses"},
 			{"name": "images"},
 			{"name": "pronounce"},
 			{"name": "vietnamese"},
 			{"name": "sound"},
 			{"name": "sentence_sound"},
-			{"name": "meaning_sound"},
 		],
 		templates=[
 			{
@@ -61,13 +73,11 @@ def build_model() -> genanki.Model:
 					  <div class="pronounce">/ {{pronounce}} /</div>
 					</div>
 					<div class="cardBody">
-						<div class="meaning">{{meaning}}</div>
-						<hr>
 						<div class="vietnamese">{{sentenses}}</div>
 						<hr>
 						<div class="vietnamese">{{vietnamese}}</div>
 					</div>
-					<div style="display:none">{{sound}} {{sentence_sound}} {{meaning_sound}}</div>
+					<div style="display:none">{{sound}} {{sentence_sound}}</div>
 				""",
 			},
 			{
@@ -85,7 +95,6 @@ def build_model() -> genanki.Model:
 			{{type:words}}
 			</div>
 
-			<div class="hiding">{{meaning_sound}}</div>
 			<script>
 			function transformString(inputString) {
 			  const words = inputString.split(' ');
@@ -133,14 +142,12 @@ def build_model() -> genanki.Model:
 				  </div>
 				  <div class="cardBody">
 					 <div class="image">{{images}}</div>
-					 <div class="meaning">{{meaning}}</div>
-					 <hr>
 					 <div class="vietnamese">{{sentenses}}</div>
 					 <hr>
 					 <div class="vietnamese">{{vietnamese}}</div>
 				</div>
 				</div>
-				<div class="hiding">{{sound}} {{sentence_sound}} {{meaning_sound}}</div>
+				<div class="hiding">{{sound}} {{sentence_sound}}</div>
 				<div class="hide-android"> 
 					{{type:words}}
 				</div>
@@ -220,18 +227,6 @@ def build_model() -> genanki.Model:
 			.android .vietnamese {
 			font-size: 20px;
 			}
-			.meaning {
-			  font-size: 30px;
-			  font-weight: 600;
-			  text-align: center;
-			  word-wrap: inherit;
-			  color: #003366;
-			}
-
-			.android .meaning {
-			font-size: 20px
-			}
-
 			.hint {
 				font-weight: bold;
 				font-size: 40px; 
@@ -296,9 +291,10 @@ def build_model() -> genanki.Model:
 	)
 
 
-def build_apkg(entries: Iterable[GeneratedWord], output_path: Path, deck_name: str = DECK_NAME) -> Path:
+def build_apkg(entries: Iterable[GeneratedWord], output_path: Path, deck_name: str | None = None) -> Path:
 	model = build_model()
-	deck = genanki.Deck(DECK_ID, deck_name)
+	resolved_name = deck_name or DECK_NAME
+	deck = genanki.Deck(deck_id_for(resolved_name), resolved_name)
 	media_files: List[str] = []
 
 	for entry in entries:
@@ -306,23 +302,31 @@ def build_apkg(entries: Iterable[GeneratedWord], output_path: Path, deck_name: s
 			model=model,
 			fields=[
 				entry.word,
-				entry.meaning,
 					entry.sentence,
 					"",
 				entry.pronounce,
 				entry.vietnamese,
-				f"[sound:{entry.word_audio.name}]",
-				f"[sound:{entry.sentence_audio.name}]",
-				f"[sound:{entry.meaning_audio.name}]",
+				_sound_reference(entry.word_audio),
+				_sound_reference(entry.sentence_audio),
 			],
 			tags=["auto", "toeic_auto"],
-			guid=genanki.guid_for(entry.word),
+			guid=genanki.guid_for(entry.word, resolved_name),
 		)
 
 		deck.add_note(note)
-		media_files.extend([str(entry.word_audio), str(entry.sentence_audio), str(entry.meaning_audio)])
+		media_files.extend(
+			str(path)
+			for path in [entry.word_audio, entry.sentence_audio]
+			if path.exists() and path.stat().st_size > 0
+		)
 
 	package = genanki.Package(deck)
 	package.media_files = list(dict.fromkeys(media_files))
 	package.write_to_file(str(output_path))
 	return output_path
+
+
+def _sound_reference(audio_path: Path) -> str:
+	if not audio_path.exists() or audio_path.stat().st_size == 0:
+		return ""
+	return f"[sound:{audio_path.name}]"

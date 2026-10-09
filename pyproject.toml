@@ -11,7 +11,7 @@ requires-python = ">=3.10"
 dependencies = [
     "edge-tts",
     "genanki",
-    "requests",
+    "mdict-utils",
 ]
 
 [project.optional-dependencies]
@@ -25,6 +25,9 @@ anki-vocab-app = "anki_vocab_app.main:run_app"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+anki_vocab_app = ["data/*.json", "data/*.db"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -9,7 +9,8 @@ import edge_tts
 from .validator import validate_nonempty_file
 
 
-_AUDIO_SLOTS = threading.BoundedSemaphore(3)
+_AUDIO_SLOTS = threading.BoundedSemaphore(1)
+_MAX_ATTEMPTS = 5
 
 
 async def create_audio(text: str, output_path: Path, voice: str) -> None:
@@ -21,7 +22,7 @@ async def create_audio(text: str, output_path: Path, voice: str) -> None:
         return
 
     last_error: Exception | None = None
-    for attempt in range(3):
+    for attempt in range(_MAX_ATTEMPTS):
         acquired = False
         try:
             await asyncio.to_thread(_AUDIO_SLOTS.acquire)
@@ -34,12 +35,13 @@ async def create_audio(text: str, output_path: Path, voice: str) -> None:
         except Exception as exc:
             last_error = exc
             output_path.unlink(missing_ok=True)
-            if attempt < 2:
-                await asyncio.sleep(2**attempt)
+            if attempt < _MAX_ATTEMPTS - 1:
+                await asyncio.sleep(2 ** attempt)
         finally:
             if acquired:
                 _AUDIO_SLOTS.release()
 
     raise RuntimeError(
-        f"Không thể tạo audio cho '{text}'. Edge TTS không trả về audio sau 3 lần thử."
+        f"Không thể tạo audio cho '{text}'. Edge TTS không trả về audio sau "
+        f"{_MAX_ATTEMPTS} lần thử. Hãy kiểm tra kết nối Internet rồi thử lại."
     ) from last_error

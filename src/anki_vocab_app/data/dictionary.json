@@ -1,0 +1,32 @@
+{
+  "ampersand": {
+    "meaning": "A symbol (&) representing the word \"and\" in written language.",
+    "pronounce": "ˈæmpərˌsænd",
+    "sentence": "The ampersand is often used in company names.",
+    "vietnamese": "Dấu and"
+  },
+  "blueprint": {
+    "meaning": "A detailed plan or design that explains how something will be built.",
+    "pronounce": "ˈbluːprɪnt",
+    "sentence": "The architect showed us the blueprint for the new house.",
+    "vietnamese": "bản thiết kế"
+  },
+  "resilient": {
+    "meaning": "Able to recover quickly from difficulty or change.",
+    "pronounce": "rɪˈzɪliənt",
+    "sentence": "The resilient team recovered after the setback.",
+    "vietnamese": "đàn hồi; kiên cường"
+  },
+  "run": {
+    "meaning": "To move quickly on foot.",
+    "pronounce": "rʌn",
+    "sentence": "I run every morning before work.",
+    "vietnamese": "chạy"
+  },
+  "walk": {
+    "meaning": "To move at a regular pace by putting one foot in front of the other.",
+    "pronounce": "wɔːk",
+    "sentence": "We walk to school every morning.",
+    "vietnamese": "đi bộ"
+  }
+}

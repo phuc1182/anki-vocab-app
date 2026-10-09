@@ -17,6 +17,7 @@ class VocabApp:
         self.root.title("Anki Vocab Generator | Daily Vocabulary")
         self.root.geometry("980x760")
         self.root.minsize(860, 680)
+        self.root.configure(background="#f1f5f9")
 
         ensure_directories()
         self._build_style()
@@ -29,31 +30,43 @@ class VocabApp:
         except tk.TclError:
             pass
 
-        style.configure("Title.TLabel", font=("Segoe UI", 20, "bold"))
-        style.configure("Hero.TLabel", font=("Segoe UI", 13, "bold"))
-        style.configure("SubTitle.TLabel", font=("Segoe UI", 10))
-        style.configure("Action.TButton", font=("Segoe UI", 11, "bold"), padding=10)
-        style.configure("Card.TFrame", background="#ffffff")
-        style.configure("Body.TLabel", font=("Segoe UI", 10))
-        style.configure("Muted.TLabel", font=("Segoe UI", 9), foreground="#64748b")
+        style.configure("App.TFrame", background="#f1f5f9")
+        style.configure("Header.TFrame", background="#1e293b")
+        style.configure("Title.TLabel", background="#1e293b", foreground="#f8fafc", font=("Segoe UI", 22, "bold"))
+        style.configure("Hero.TLabel", background="#1e293b", foreground="#cbd5e1", font=("Segoe UI", 11))
+        style.configure("SubTitle.TLabel", background="#1e293b", foreground="#94a3b8", font=("Segoe UI", 9))
+        style.configure("Eyebrow.TLabel", background="#1e293b", foreground="#38bdf8", font=("Segoe UI", 9, "bold"))
+        style.configure("Action.TButton", background="#0284c7", foreground="#ffffff", font=("Segoe UI", 11, "bold"), padding=(18, 10), borderwidth=0)
+        style.map("Action.TButton", background=[("active", "#0369a1"), ("disabled", "#94a3b8")])
+        style.configure("Secondary.TButton", background="#e2e8f0", foreground="#334155", font=("Segoe UI", 10), padding=(12, 8), borderwidth=0)
+        style.map("Secondary.TButton", background=[("active", "#cbd5e1")])
+        style.configure("Card.TFrame", background="#ffffff", bordercolor="#e2e8f0", borderwidth=1, relief="solid")
+        style.configure("Body.TLabel", background="#ffffff", foreground="#1e293b", font=("Segoe UI", 10, "bold"))
+        style.configure("Muted.TLabel", background="#ffffff", foreground="#64748b", font=("Segoe UI", 9))
+        style.configure("Status.TLabel", background="#f1f5f9", foreground="#475569", font=("Segoe UI", 9))
+        style.configure("Section.TLabel", background="#ffffff", foreground="#0f172a", font=("Segoe UI", 12, "bold"))
+        style.configure("TEntry", fieldbackground="#f8fafc", foreground="#0f172a", padding=8)
+        style.configure("TCheckbutton", background="#ffffff", foreground="#475569", font=("Segoe UI", 9))
+        style.map("TCheckbutton", background=[("active", "#ffffff")])
 
     def _build_ui(self) -> None:
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(1, weight=1)
 
-        header = ttk.Frame(self.root, padding=20)
+        header = ttk.Frame(self.root, padding=(28, 24), style="Header.TFrame")
         header.grid(row=0, column=0, sticky="ew")
         header.columnconfigure(0, weight=1)
 
-        ttk.Label(header, text="Anki Vocab Generator", style="Title.TLabel").grid(row=0, column=0, sticky="w")
-        ttk.Label(header, text="Daily workflow: paste words, generate one deck, and study the same day.", style="Hero.TLabel").grid(row=1, column=0, sticky="w", pady=(6, 0))
+        ttk.Label(header, text="DAILY VOCABULARY", style="Eyebrow.TLabel").grid(row=0, column=0, sticky="w")
+        ttk.Label(header, text="Anki Vocab Generator", style="Title.TLabel").grid(row=1, column=0, sticky="w", pady=(3, 0))
+        ttk.Label(header, text="Tạo bộ thẻ từ vựng nhanh hơn, học ngay trong ngày.", style="Hero.TLabel").grid(row=2, column=0, sticky="w", pady=(6, 0))
         ttk.Label(
             header,
-            text="Nhập từ mới, chương trình sẽ tự tra nghĩa, tạo audio và file .apkg riêng cho từng lần chạy.",
+            text="Nhập từ mới, chương trình sẽ tự tra nghĩa, tạo audio và một bộ thẻ con mới trong Anki Vocab App.",
             style="SubTitle.TLabel",
-        ).grid(row=2, column=0, sticky="w", pady=(6, 0))
+        ).grid(row=3, column=0, sticky="w", pady=(4, 0))
 
-        body = ttk.Frame(self.root, padding=(20, 0, 20, 20))
+        body = ttk.Frame(self.root, padding=(28, 20, 28, 24), style="App.TFrame")
         body.grid(row=1, column=0, sticky="nsew")
         body.columnconfigure(0, weight=1)
         body.rowconfigure(3, weight=1)
@@ -62,50 +75,90 @@ class VocabApp:
         entry_card.grid(row=0, column=0, sticky="ew")
         entry_card.columnconfigure(0, weight=1)
 
-        ttk.Label(entry_card, text="Step 1. Dán các từ mới, mỗi dòng một từ", style="Body.TLabel").grid(row=0, column=0, sticky="w")
+        ttk.Label(entry_card, text="1  TỪ VỰNG HÔM NAY", style="Section.TLabel").grid(row=0, column=0, sticky="w")
         ttk.Label(entry_card, text="Bạn có thể dán trực tiếp, hoặc nạp từ file input/words.csv cho danh sách ngày hôm đó.", style="Muted.TLabel").grid(row=1, column=0, sticky="w", pady=(4, 0))
-        self.words_text = ScrolledText(entry_card, height=9, font=("Segoe UI", 11), wrap="word")
-        self.words_text.grid(row=2, column=0, sticky="ew", pady=(10, 12))
+        ttk.Label(entry_card, text="Tên bộ thẻ Anki (để trống dùng Anki Vocab App)", style="Body.TLabel").grid(row=2, column=0, sticky="w", pady=(10, 0))
+        self.deck_name_var = tk.StringVar()
+        ttk.Entry(entry_card, textvariable=self.deck_name_var, font=("Segoe UI", 11)).grid(row=3, column=0, sticky="ew", pady=(4, 0))
+        self.words_text = ScrolledText(
+            entry_card,
+            height=8,
+            font=("Segoe UI", 11),
+            wrap="word",
+            background="#f8fafc",
+            foreground="#0f172a",
+            insertbackground="#0284c7",
+            selectbackground="#bae6fd",
+            relief="flat",
+            borderwidth=1,
+            highlightthickness=1,
+            highlightbackground="#cbd5e1",
+            highlightcolor="#0284c7",
+            padx=10,
+            pady=8,
+        )
+        self.words_text.grid(row=4, column=0, sticky="ew", pady=(10, 12))
         self.words_text.insert("1.0", "run\nwalk")
 
-        button_row = ttk.Frame(entry_card)
-        button_row.grid(row=3, column=0, sticky="ew")
-        button_row.columnconfigure(4, weight=1)
+        button_row = ttk.Frame(entry_card, style="Card.TFrame")
+        button_row.grid(row=5, column=0, sticky="ew")
+        button_row.columnconfigure(2, weight=1)
 
-        ttk.Button(button_row, text="Load CSV", command=self._load_csv).grid(row=0, column=0, sticky="w")
-        ttk.Button(button_row, text="Sample Day", command=self._load_sample_day).grid(row=0, column=1, sticky="w", padx=(10, 0))
+        ttk.Button(button_row, text="Nạp danh sách", style="Secondary.TButton", command=self._load_csv).grid(row=0, column=0, sticky="w")
 
-        self.generate_button = ttk.Button(button_row, text="Generate Today's Deck", style="Action.TButton", command=self._start_generation)
-        self.generate_button.grid(row=0, column=0, sticky="w")
-        self.generate_button.grid_configure(column=2, padx=(10, 0))
-
-        ttk.Button(button_row, text="Open Output", command=self._open_output).grid(row=0, column=3, padx=(10, 0))
+        self.generate_button = ttk.Button(button_row, text="Tạo bộ thẻ hôm nay  →", style="Action.TButton", command=self._start_generation)
+        self.generate_button.grid(row=0, column=1, sticky="w", padx=(10, 0))
 
         self.clear_after_generate = tk.BooleanVar(value=True)
-        ttk.Checkbutton(button_row, text="Clear input after generate", variable=self.clear_after_generate).grid(row=0, column=4, sticky="w", padx=(14, 0))
+        ttk.Checkbutton(button_row, text="Xóa danh sách sau khi tạo", variable=self.clear_after_generate).grid(row=0, column=2, sticky="w", padx=(14, 0))
 
         self.status_var = tk.StringVar(value=f"Output folder: {OUTPUT_DIR}")
-        ttk.Label(body, textvariable=self.status_var, style="Body.TLabel").grid(row=1, column=0, sticky="w", pady=(14, 8))
+        ttk.Label(body, textvariable=self.status_var, style="Status.TLabel").grid(row=1, column=0, sticky="w", pady=(12, 10))
 
         recent_card = ttk.Frame(body, padding=18, style="Card.TFrame")
         recent_card.grid(row=2, column=0, sticky="ew", pady=(0, 12))
         recent_card.columnconfigure(1, weight=1)
-        ttk.Label(recent_card, text="Step 2. Kết quả gần đây", style="Body.TLabel").grid(row=0, column=0, sticky="w")
+        ttk.Label(recent_card, text="2  BỘ THẺ GẦN ĐÂY", style="Section.TLabel").grid(row=0, column=0, sticky="w")
         self.recent_var = tk.StringVar(value="Chưa có file nào được tạo trong phiên này.")
         ttk.Label(recent_card, textvariable=self.recent_var, style="Muted.TLabel", wraplength=760, justify="left").grid(row=1, column=0, sticky="w", pady=(6, 0))
-        self.output_listbox = tk.Listbox(recent_card, height=4, font=("Consolas", 10), exportselection=False)
+        self.output_listbox = tk.Listbox(
+            recent_card,
+            height=4,
+            font=("Segoe UI", 10),
+            exportselection=False,
+            background="#f8fafc",
+            foreground="#334155",
+            selectbackground="#e0f2fe",
+            selectforeground="#0c4a6e",
+            relief="flat",
+            highlightthickness=1,
+            highlightbackground="#cbd5e1",
+            activestyle="none",
+        )
         self.output_listbox.grid(row=2, column=0, columnspan=2, sticky="ew", pady=(8, 8))
         self.output_listbox.bind("<Double-1>", lambda _event: self._open_selected_output())
-        ttk.Button(recent_card, text="Open Selected", command=self._open_selected_output).grid(row=3, column=0, sticky="w")
-        ttk.Button(recent_card, text="Refresh List", command=self._refresh_recent_output).grid(row=3, column=1, sticky="w", padx=(10, 0))
+        ttk.Button(recent_card, text="Mở file đã chọn", style="Secondary.TButton", command=self._open_selected_output).grid(row=3, column=0, sticky="w")
 
         log_card = ttk.Frame(body, padding=18, style="Card.TFrame")
         log_card.grid(row=3, column=0, sticky="nsew")
         log_card.columnconfigure(0, weight=1)
-        log_card.rowconfigure(0, weight=1)
+        log_card.rowconfigure(1, weight=1)
 
-        ttk.Label(log_card, text="Log", style="Body.TLabel").grid(row=0, column=0, sticky="w")
-        self.log_box = ScrolledText(log_card, height=14, font=("Consolas", 10), state="disabled")
+        ttk.Label(log_card, text="NHẬT KÝ HOẠT ĐỘNG", style="Section.TLabel").grid(row=0, column=0, sticky="w")
+        self.log_box = ScrolledText(
+            log_card,
+            height=11,
+            font=("Consolas", 9),
+            state="disabled",
+            background="#f8fafc",
+            foreground="#475569",
+            relief="flat",
+            borderwidth=1,
+            highlightthickness=1,
+            highlightbackground="#e2e8f0",
+            padx=8,
+            pady=6,
+        )
         self.log_box.grid(row=1, column=0, sticky="nsew", pady=(8, 0))
 
         self._log("Ready.")
@@ -148,14 +201,6 @@ class VocabApp:
     def _set_busy(self, busy: bool) -> None:
         self.generate_button.configure(state="disabled" if busy else "normal")
 
-    def _open_output(self) -> None:
-        output_dir = OUTPUT_DIR
-        output_dir.mkdir(parents=True, exist_ok=True)
-        try:
-            os.startfile(output_dir)
-        except Exception as exc:
-            messagebox.showerror("Open Output", str(exc))
-
     def _load_csv(self) -> None:
         file_path = filedialog.askopenfilename(
             title="Select words.csv",
@@ -181,13 +226,6 @@ class VocabApp:
         self.status_var.set(f"Loaded {len(words)} word(s) from {Path(file_path).name}")
         self._log(f"Loaded CSV: {file_path}")
 
-    def _load_sample_day(self) -> None:
-        sample = "run\nwalk\nblueprint"
-        self.words_text.delete("1.0", "end")
-        self.words_text.insert("1.0", sample)
-        self.status_var.set("Loaded sample daily list.")
-        self._log("Loaded sample day words.")
-
     def _start_generation(self) -> None:
         words = split_words(self.words_text.get("1.0", "end"))
         if not words:
@@ -197,10 +235,11 @@ class VocabApp:
         self._set_busy(True)
         self.status_var.set("Generating... please wait.")
         self._log(f"Start: {len(words)} word(s)")
+        deck_name = self.deck_name_var.get().strip()
 
         def worker() -> None:
             try:
-                output_path, entries = generate_deck(words, log=self._thread_log)
+                output_path, entries = generate_deck(words, log=self._thread_log, deck_name=deck_name)
                 self.root.after(0, lambda: self._generation_done(output_path, entries))
             except Exception as exc:
                 self.root.after(0, lambda error=exc: self._generation_failed(error))
