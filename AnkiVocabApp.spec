@@ -3,12 +3,13 @@ from pathlib import Path
 
 from PyInstaller.utils.hooks import collect_all, collect_submodules
 
+project_root = Path(SPECPATH)
+
 datas, binaries, hiddenimports = collect_all("edge_tts")
+datas += [(str(project_root / "src" / "anki_vocab_app" / "data"), "anki_vocab_app/data")]
 hiddenimports += collect_submodules("genanki")
 hiddenimports += collect_submodules("anki_vocab_app")
-hiddenimports += ["requests", "urllib3", "aiohttp"]
-
-project_root = Path(SPECPATH)
+hiddenimports += ["aiohttp", "mdict_utils"]
 
 a = Analysis(
     [str(project_root / "scripts" / "run_app.py")],
